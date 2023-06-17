@@ -1,0 +1,124 @@
+---
+title: "NYPD Shooting Data"
+author: "Darren"
+date: "2023-06-02"
+output: slidy_presentation
+
+---
+
+## Goal
+
+To Import the shooting project data using the data obtained from the website:
+
+<https://data.cityofnewyork.us/api/views/833y-fsy8/rows.csv?accessType=DOWNLOAD>. The Goal of the report is to answer two questions.
+
+1.  What location in NY city do most of the shootings take place?
+
+2.  Which Race commits the most NY city Shootings?
+
+```{r setup and download, echo=FALSE, warning=FALSE, message=FALSE}
+
+library(tidyverse)
+library(lubridate)
+library(gridExtra)
+nypd_df <- read_csv("https://data.cityofnewyork.us/api/views/833y-fsy8/rows.csv?accessType=DOWNLOAD")
+
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Summary
+
+The NY Shooting Data is the breakdown of every shooting incident in NYC from\
+the year 2016 until 2022. Each record represents the location and time of the\
+shooting as well as the demographics of the victim and the suspect. The data was cleaned and modified to allow the location and ethnicity of each shooting to be graphed.
+
+## Cleaning
+
+-   Select the Columns; Date, Time, Location, Perpetrator's Description, Victim's Description
+-   Renamed Columns "Boro" = "Location", "Location_desc" = "Building Type"
+-   Modify the date so that it is more easily readable
+-   Remove data rows that contain NA.
+
+## Summary of Cleaned Data used for Report
+
+```{r data cleaning, warning=FALSE}
+# Select just the Date, Time, Location, Perpetrator's Description, Victim's Description
+# Renamed Columns "Boro" = "Location", "Location_desc" = "Building Type"
+# Modify the date so that it is more easily readable
+# remove data rows that contain NA.
+nypd_df <- nypd_df %>% select(-c(INCIDENT_KEY, LOC_OF_OCCUR_DESC, LOC_CLASSFCTN_DESC, PRECINCT, 
+                                STATISTICAL_MURDER_FLAG, 
+                                JURISDICTION_CODE, X_COORD_CD, Y_COORD_CD, Latitude,
+                                Longitude, Lon_Lat))
+nypd_df <- nypd_df %>% 
+  rename(LOCATION = 'BORO', BUILDING_TYPE = 'LOCATION_DESC')
+nypd_df <- nypd_df %>%
+  mutate(OCCUR_DATE = mdy(OCCUR_DATE))
+
+nypd_df <- nypd_df %>%
+  mutate(OCCUR_TIME = hms(OCCUR_TIME))
+
+nypd_df <- na.omit(nypd_df)
+```
+
+```{r nypd summary, warning=FALSE}
+summary(nypd_df)
+```
+
+## Dealing With Missing Data
+
+Remove missing Data If the amount of missing data is small, the missing data rows may be deleted or\
+the average of the column can be used. If a column has alot of\
+missing data, the column may have to be deleted.
+
+## Graph 1
+
+```{r graph 1, warning=FALSE, echo=FALSE}
+
+ggplot(data = nypd_df, aes(x = LOCATION, color= LOCATION)) + geom_bar(fill='white') +
+  scale_x_discrete(labels = NULL) + ggtitle("NY City Shooting Locations")
+```
+
+The most shooting in NYC are in *Brooklyn* followed by the *Broncs*.
+
+## Graph 2
+
+```{r graph 2, warning=FALSE, echo= FALSE}
+ggplot(data = nypd_df, aes(x = PERP_RACE, color= PERP_RACE)) + geom_bar(fill='white') +
+  scale_x_discrete(labels = NULL) + ggtitle("NY City Shooter Ethnicity")
+```
+
+The Majority of Shootings in NYC are by people who are labeled as **Black**.
+
+**Note that the code_folding was added to the YAML code chunk to\
+allow R code to be visible when clicked.**
+
+## Project Conclusion
+
+Further Questions:\
+1. Are shootings in NY city occurring more at night then during the day?\
+2. What ethnicity is a victim if a shooting the most often?\
+3. Are the number of shootings in NYC increasing or decreasing from 2016 to 2022?
+
+Sources of Personal Bias that has been incorporated into this report are the variables\
+that I chose to study. Ethnicity can have biased since I assumed that this would be\
+more important to study than age. Also, some data was eliminated when rows with NA\
+were removed from the data set. Certain ethnic groups may have more missing\
+data and would be under-represented in the study.
+
+The biased may be mitigated by making sure that every entry had all of the\
+information present. Or the rows that have NA could be included in the survey but only\
+rows that have NA in the columns of ethnicity be removed. This may reproduce more accurate\
+results since we would have more data to chose from.
+
+## GRAPHS
+
+
+```{r, echo=FALSE, warning=FALSE}
+df1 <- ggplot(data = nypd_df, aes(x = LOCATION, color= LOCATION)) + geom_bar(fill='white') +
+  scale_x_discrete(labels = NULL) + ggtitle("NY City Shooting Locations")
+df2 <- ggplot(data = nypd_df, aes(x = PERP_RACE, color= PERP_RACE)) + geom_bar(fill='white') +
+  scale_x_discrete(labels = NULL) + ggtitle("NY City Shooter Ethnicity")
+grid.arrange(df1, df2, ncol=2)
+```
