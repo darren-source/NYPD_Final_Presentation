@@ -2,7 +2,7 @@
 title: "NYPD Shooting Data"
 author: "Darren"
 date: "2023-06-02"
-output: html_documents
+output: html_document
 
 ---
 
