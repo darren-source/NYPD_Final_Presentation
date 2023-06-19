@@ -2,7 +2,7 @@
 title: "NYPD Shooting Data"
 author: "Darren"
 date: "2023-06-02"
-output: slidy_presentation
+output: html_documents
 
 ---
 
@@ -42,7 +42,7 @@ shooting as well as the demographics of the victim and the suspect. The data was
 
 ## Summary of Cleaned Data used for Report
 
-```{r data cleaning, warning=FALSE}
+```{r data cleaning, warning=FALSE, echo=FALSE}
 # Select just the Date, Time, Location, Perpetrator's Description, Victim's Description
 # Renamed Columns "Boro" = "Location", "Location_desc" = "Building Type"
 # Modify the date so that it is more easily readable
